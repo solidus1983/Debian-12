@@ -8,7 +8,7 @@ log() {
 # Function to install base packages
 install_base_packages() {
     log "Installing base packages..."
-    sudo apt install gnupg dirmngr apt-transport-https console-setup git ca-certificates curl build-essential checkinstall zlib1g-dev libssl-dev neofetch micro inotify-tools htop -y || { log "Failed to install base packages. Exiting."; exit 1; }
+    sudo apt install gnupg dirmngr apt-transport-https console-setup git ca-certificates curl build-essential checkinstall zlib1g-dev libssl-dev micro inotify-tools htop -y || { log "Failed to install base packages. Exiting."; exit 1; }
     log "Base packages installed."
 }
 
@@ -122,72 +122,10 @@ install_vscode() {
     add_key "https://packages.microsoft.com/keys/microsoft.asc" "/usr/share/keyrings/packages.microsoft.gpg"
     add_repository "/etc/apt/sources.list.d/vscode.list" "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main"
     sudo apt update && sudo apt install code -y || { log "Failed to install VSCode. Exiting."; exit 1; }
-    # Install VSCode extensions
-    extensions=(
-        actboy168.lua-debug
-        bee.git-temporal-vscode
-        dbaeumer.vscode-eslint
-        donjayamanne.githistory
-        earthly.earthfile-syntax-highlighting
-        esbenp.prettier-vscode
-        felipecaputo.git-project-manager
-        formulahendry.auto-rename-tag
-        github.vscode-github-actions
-        github.vscode-pull-request-github
-        henriquebruno.github-repository-manager
-        hilleer.yaml-plus-json
-        johnstoncode.svn-scm
-        letmaik.git-tree-compare
-        magicstack.magicpython
-        mhutchie.git-graph
-        mohsen1.prettify-json
-        ms-azuretools.vscode-docker
-        ms-python.debugpy
-        ms-python.isort
-        ms-python.python
-        ms-python.vscode-pylance
-        ms-toolsai.jupyter-keymap
-        ms-toolsai.jupyter-renderers
-        ms-toolsai.vscode-jupyter-cell-tags
-        ms-toolsai.vscode-jupyter-slideshow
-        ms-vscode-remote.remote-containers
-        ms-vscode.cmake-tools
-        ms-vscode.cpptools
-        ms-vscode.cpptools-extension-pack
-        ms-vscode.makefile-tools
-        ocamllabs.ocaml-platform
-        oouo-diogo-perdigao.docthis
-        paragdiwan.gitpatch
-        petli-full.json-to-yaml-and-more
-        pinage404.git-extension-pack
-        plorefice.devicetree
-        poeticandroid.vscode-poetry
-        redhat.java
-        redhat.vscode-yaml
-        reduckted.vscode-gitweblinks
-        ritwickdey.liveserver
-        rust-lang.rust-analyzer
-        stylelint.vscode-stylelint
-        timonwong.shellcheck
-        trentrand.git-rebase-shortcuts
-        twxs.cmake
-        visualstudioexptteam.intellicode-api-usage-examples
-        visualstudioexptteam.vscodeintellicode
-        vmware.vscode-spring-boot
-        vscjava.vscode-java-debug
-        vscjava.vscode-java-dependency
-        vscjava.vscode-java-pack
-        vscjava.vscode-java-test
-        vscjava.vscode-maven
-        vue.volar
-        xaver.clang-format
-        yinfei.luahelper
-        zainchen.json
-        zeshuaro.vscode-python-poetry
-    )
-    for extension in "${extensions[@]}"; do
+    # Install VSCode extensions from file
+    while IFS= read -r extension || [[ -n "$extension" ]]; do
         code --install-extension "$extension" || { log "Failed to install VSCode extension: $extension"; }
-    done
+    done < extensions
     log "VSCode and extensions installed."
 }
 
@@ -295,7 +233,7 @@ EOT
 # Function to install development compiling tools
 install_dev_compiling() {
     log "Installing development compiling tools..."
-    sudo apt install device-tree-compiler build-essential gawk gcc-multilib flex git gettext libncurses5-dev libssl-dev python3-distutils zlib1g-dev \
+    sudo apt install device-tree-compiler build-essential gawk gcc-multilib flex git gettext libncurses5-dev libssl-dev python3-distutils \
     libncursesw5-dev xsltproc rsync wget unzip python3 rsync subversion swig time libelf-dev java-propose-classpath ccache ecj fastjar file g++ python3-setuptools \
     openjdk-17-jdk bcc libxml-parser-perl libusb-dev bin86 sharutils zip fakeroot make sed bison autoconf automake python3 patch perl-modules* python3-dev bash binutils \
     bzip2 gcc util-linux intltool help2man python3 python3-pip python-is-python3 openjdk-17-jdk wireshark nmap whois mtr traceroute tcptraceroute cutecom putty subversion -y || { log "Failed to install development compiling tools. Exiting."; exit 1; }
