@@ -6,6 +6,7 @@ source resources/regolith-i3
 source resources/gnome-ext
 source resources/vscode
 source resources/browsers
+source resources/developer
 
 # Logging function
 log() {

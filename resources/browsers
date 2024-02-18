@@ -2,6 +2,7 @@
 install_microsoft_edge() {
     add_key "https://packages.microsoft.com/keys/microsoft.asc" "/usr/share/keyrings/microsoft-edge.gpg"
     add_repository "/etc/apt/sources.list.d/microsoft-edge.list" "deb [signed-by=/usr/share/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main"
+    update_packages 
     log "Installing Microsoft Edge..."
     sudo apt install microsoft-edge-stable -y || sudo snap install microsoft-edge-stable || { log "Failed to install Microsoft Edge. Exiting."; exit 1; }
     log "Microsoft Edge installed."
