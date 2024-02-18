@@ -9,8 +9,8 @@ install_vscode() {
     sudo apt install code -y || { log "Failed to install VSCode. Exiting."; exit 1; }
 
     # Install VSCode extensions from file
-    while IFS= read -r resources/extensions || [[ -n "$extension" ]]; do
+    while IFS= read -r extension || [[ -n "$extension" ]]; do
         code --install-extension "$extension" || { log "Failed to install VSCode extension: $extension"; }
-    done < extensions
+    done < ./resources/extensions
     log "VSCode and extensions installed."
 }
