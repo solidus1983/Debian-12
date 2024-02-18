@@ -5,10 +5,10 @@ sda1=$(blkid -s UUID -o value /dev/sda1)
 sda1_uuid="UUID=$sda1"
 sda2=$(blkid -s UUID -o value /dev/sda2)
 sda2_uuid="UUID=$sda2"
-vg=$(lvs --noheadings -o vg_name | sed 's/^ *//;s/ *$//;s/-/--/') | echo $vg
-lv=$(lvs --noheadings -o lv_name | sed 's/^ *//;s/ *$//') | echo $lv
-part="$vg-$lv"
-crypt=$(lsblk -o NAME,TYPE | grep -oE '\s+sda[0-9]+_crypt\s+' | awk '{print $1}')
+vg=$(lvs --noheadings -o vg_name | sed 's/^ *//;s/ *$//;s/-/--/')
+lv=$(lvs --noheadings -o lv_name | sed 's/^ *//;s/ *$//')
+part="$vg"-"$lv"
+crypt=$(awk '$4 ~ /^sda[0-9]+_crypt$/ {print "/dev/" $4}' /proc/partitions)
 crypt_uuid=$(blkid -s UUID -o value /dev/$crypt)
 
 # Unmounting and Remounting
