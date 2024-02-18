@@ -1,0 +1,77 @@
+# Function to install Dell Precision 5760specific packages
+install_dell_precision_5760_packages() {
+    log "Installing Dell Precision 5760 specific packages..."
+    # Additional Dell drivers
+    sudo add-apt-repository ppa:oem-solutions-engineers/oem-projects-meta
+    sudo tee /etc/apt/sources.list.d/oem-somerville-stantler-meta.list > /dev/null <<p5760-1
+    deb http://dell.archive.canonical.com/ jammy somerville
+    deb http://dell.archive.canonical.com/ jammy somerville-stantler
+p5760-1
+    sudo tee /etc/apt/sources.list.d/oem-solutions-engineers-ubuntu-oem-projects-meta-jammy.list > /dev/null <<p5760-2
+    deb https://ppa.launchpadcontent.net/oem-solutions-engineers/oem-projects-meta/ubuntu/ jammy main
+    deb-src https://ppa.launchpadcontent.net/oem-solutions-engineers/oem-projects-meta/ubuntu/ jammy main
+p5760-2
+    sudo apt update
+    sudo apt install ubuntu-oem-keyring oem-somerville-stantler-meta firmware-sof-signed inxi alsa-base -y || { log "Failed to install Dell Precision 5760-specific packages. Exiting."; exit 1; }
+    log "Dell Precision 5760-specific packages installed."
+}
+
+# Function to install Dell XPS 13 specific packages
+install_dell_xps_13_packages() {
+    log "Installing Dell XPS 13 specific packages..."
+    # Additional Dell drivers
+    sudo add-apt-repository ppa:oem-solutions-group/intel-ipu6
+    sudo add-apt-repository ppa:oem-solutions-engineers/oem-projects-meta
+    sudo tee /etc/apt/sources.list.d/oem-somerville-tentacool-meta.list > /dev/null <<xps13-1
+    deb http://dell.archive.canonical.com/ jammy somerville
+    deb http://dell.archive.canonical.com/ jammy somerville-tentacool
+xps13-1
+    sudo tee /etc/apt/sources.list.d/oem-solutions-engineers-ubuntu-oem-projects-meta-jammy.list > /dev/null <<xps13-2
+    deb https://ppa.launchpadcontent.net/oem-solutions-engineers/oem-projects-meta/ubuntu/ jammy main
+    deb-src https://ppa.launchpadcontent.net/oem-solutions-engineers/oem-projects-meta/ubuntu/ jammy main
+xps13-2
+    sudo apt install ubuntu-oem-keyring oem-somerville-tentacool-meta firmware-sof-signed inxi alsa-base \
+    gstreamer1.0-icamera libcamhal-ipu6ep0 tlp tlp-rdw -y || { log "Failed to install Dell Precision 5760-specific packages. Exiting."; exit 1; }
+    log "Dell XPS 13 specific packages installed."
+}
+
+# Function to install ThinkPad T440p-specific packages
+install_thinkpad_t440p_packages() {
+    log "Installing ThinkPad T440p-specific packages..."
+    # Additional ThinkPad drivers
+    sudo apt install lm-sensors thinkfan acpitool tp-smapi-dkms tpb tlp tlp-rdw nvidia-tesla-470-driver -y || { log "Failed to install ThinkPad T440p-specific packages. Exiting."; exit 1; }
+    
+    # Configure thinkfan
+    echo "options thinkpad_acpi fan_control=1" | sudo tee /etc/modprobe.d/thinkpad_acpi.conf > /dev/null || { log "Failed to write thinkpad_acpi options. Exiting."; exit 1; }
+    sudo modprobe -rv thinkpad_acpi || { log "Failed to load thinkpad_acpi module. Exiting."; exit 1; }
+    sudo modprobe -v thinkpad_acpi || { log "Failed to load thinkpad_acpi module. Exiting."; exit 1; }
+    echo 'THINKFAN_ARGS="-c /etc/thinkfan.conf"' | sudo tee -a /etc/default/thinkfan
+    sudo tee /etc/thinkfan.conf > /dev/null <<EOT || { log "Failed to configure thinkfan. Exiting."; exit 1; }
+# /etc/thinkfan.conf
+#sensor /proc/acpi/ibm/thermal (0, 10, 15, 2, 10, 5, 0, 3, 0, 3)
+#sensor /proc/acpi/ibm/thermal (0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0)
+sensor /sys/devices/virtual/thermal/thermal_zone1/temp
+sensor /sys/devices/platform/thinkpad_hwmon/temp1_input
+sensor /sys/devices/platform/thinkpad_hwmon/temp2_input
+sensor /sys/devices/platform/thinkpad_hwmon/temp3_input
+sensor /sys/devices/platform/thinkpad_hwmon/temp4_input
+sensor /sys/devices/platform/thinkpad_hwmon/temp9_input (10)
+
+(0,	0,	55)
+(1,	48,	57)
+(2,	50,	59)
+(3,	52,	60)
+(4,	54,	61)
+(5,	56,	62)
+("level full-speed",	57,	32767)
+EOT
+
+    # Restart thinkfan
+    sudo systemctl restart thinkfan || { log "Failed to restart thinkfan. Exiting."; exit 1; }
+    
+    # Configure TLP
+    sudo tlp start || { log "Failed to start TLP. Exiting."; exit 1; }
+
+    # Log  
+    log "ThinkPad T440p-specific packages installed and configured."
+}
