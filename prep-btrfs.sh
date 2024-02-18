@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # Variables 
-
 sda1=$(blkid -s UUID -o value /dev/sda1)
 sda1_uuid="UUID=$sda1"
 sda2=$(blkid -s UUID -o value /dev/sda2)
@@ -81,8 +80,8 @@ echo -e "/dev/mapper/$part	/tmp  		  btrfs   subvol=@tmp,noatime,compress=zstd:1
 echo -e "/dev/mapper/$part	/opt  		  btrfs   subvol=@opt,noatime,compress=zstd:1							0   0" >> /target/etc/fstab
 echo -e "/dev/mapper/$part	/var/lib/libvirt/images	btrfs   subvol=@images,noatime,compress=zstd:1				0   0" >> /target/etc/fstab
 echo -e "/dev/mapper/$part	/var/lib/containers 	btrfs   subvol=@containers,noatime,compress=zstd:1   			0   0" >> /target/etc/fstab
-echo -e "$sda2_uuid	/boot   	   ext2 	defaults 	0   2" > /target/etc/fstab
-echo -e "$sda1_uuid	/boot/efi   vfat 	umask=0077  0   1" > /target/etc/fstab
+echo -e "$sda2_uuid	/boot   	   ext2 	defaults 	0   2" >> /target/etc/fstab
+echo -e "$sda1_uuid	/boot/efi   vfat 	umask=0077  0   1" >> /target/etc/fstab
 
 # Cleaning Up
 cd /

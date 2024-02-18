@@ -216,14 +216,13 @@ install_common_packages() {
 
 # Function to install Dell Precision 5760specific packages
 install_dell_precision_5760_packages() {
-    log "Installing Dell Precision 5760-specific packages..."
+    log "Installing Dell Precision 5760 specific packages..."
     # Additional Dell drivers
     sudo add-apt-repository ppa:oem-solutions-engineers/oem-projects-meta
     sudo tee /etc/apt/sources.list.d/oem-somerville-stantler-meta.list > /dev/null <<p5760-1
     deb http://dell.archive.canonical.com/ jammy somerville
     deb http://dell.archive.canonical.com/ jammy somerville-stantler
 p5760-1
-
     sudo tee /etc/apt/sources.list.d/oem-solutions-engineers-ubuntu-oem-projects-meta-jammy.list > /dev/null <<p5760-2
     deb https://ppa.launchpadcontent.net/oem-solutions-engineers/oem-projects-meta/ubuntu/ jammy main
     deb-src https://ppa.launchpadcontent.net/oem-solutions-engineers/oem-projects-meta/ubuntu/ jammy main
@@ -400,7 +399,7 @@ install_microsoft_edge
 # Install VSCode and extensions
 install_vscode
 
-# Install development compiling tools
+# Install development & compiling tools
 install_dev_compiling
 
 # Setup Python
