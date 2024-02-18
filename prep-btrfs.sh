@@ -8,6 +8,8 @@ sda2_uuid="UUID=$sda2"
 vg=$(lvs --noheadings -o vg_name | sed 's/^ *//;s/ *$//;s/-/--/') | echo $vg
 lv=$(lvs --noheadings -o lv_name | sed 's/^ *//;s/ *$//') | echo $lv
 part="$vg-$lv"
+crypt=$(lsblk -o NAME,TYPE | grep -oE '\s+sda[0-9]+_crypt\s+' | awk '{print $1}')
+crypt_uuid=$(blkid -s UUID -o value /dev/$crypt)
 
 # Unmounting and Remounting
 umount /target/boot/efi
@@ -82,6 +84,10 @@ echo -e "/dev/mapper/$part	/var/lib/libvirt/images	btrfs   subvol=@images,noatim
 echo -e "/dev/mapper/$part	/var/lib/containers 	btrfs   subvol=@containers,noatime,compress=zstd:1   			0   0" >> /target/etc/fstab
 echo -e "$sda2_uuid	/boot   	   ext2 	defaults 	0   2" >> /target/etc/fstab
 echo -e "$sda1_uuid	/boot/efi   vfat 	umask=0077  0   1" >> /target/etc/fstab
+
+# Creating crypttab
+touch /target/etc/crypttab
+echo -e "$crypt UUID="$crypt_uuid" none luks,discard" >> /target/etc/crypttab
 
 # Cleaning Up
 cd /
