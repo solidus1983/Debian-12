@@ -1,3 +1,4 @@
+Extensions installed on vscode.solidus1983.duckdns.org:
 adam-bender.commit-message-editor
 adam-bender.commit-message-formatter
 ahmadawais.emoji-log-vscode
@@ -10,7 +11,6 @@ codezombiech.gitignore
 coenraads.bracket-pair-colorizer-2
 csharpier.csharpier-vscode
 darkriszty.markdown-table-prettify
-dez64ru.macos-modern-theme
 donjayamanne.githistory
 donjayamanne.python-environment-manager
 donjayamanne.python-extension-pack
@@ -21,7 +21,6 @@ foxundermoon.shell-format
 hbenl.test-adapter-converter
 hbenl.vscode-test-explorer
 henriquebruno.github-repository-manager
-jayceeliu.device-interface
 jeff-hykin.better-dockerfile-syntax
 kevinrose.vsc-python-indent
 magicstack.magicpython
@@ -42,7 +41,6 @@ njpwerner.autodocstring
 numso.prettier-standard-vscode
 oouo-diogo-perdigao.docthis
 paragdiwan.gitpatch
-pinage404.git-extension-pack
 pinage404.rust-extension-pack
 plorefice.devicetree
 prateekmahendrakar.prettyxml
