@@ -1,0 +1,59 @@
+# Snapper Add Repo Function
+install_snapper_repo () {
+    add_key "https://download.opensuse.org/repositories/home:iDesmI:more/Debian_12/Release.key" "/etc/apt/trusted.gpg.d/home_iDesmI_more.gpg"
+    add_repository "/etc/apt/sources.list.d/snapper.list" "deb http://download.opensuse.org/repositories/home:/iDesmI:/more/Debian_12/ /"
+    # Install snapper
+    update_packages 
+    install_packages snapper-gui btrfs-assistant || { log "Failed to install Snapper GUI and BTRFS Assistant. Exiting."; exit 1; } 
+}
+
+# Snapper Setup Function
+snapper_setup() {
+    # Define the mount points where you want to create snapshots
+    snapshot_mount_points=("/" "/home")
+
+    # Iterate over each defined mount point
+    for mount_point in "${snapshot_mount_points[@]}"; do
+        # Unmount .snapshots subvolume if mounted
+        if mountpoint -q "$mount_point/.snapshots"; then
+            sudo umount "$mount_point/.snapshots" || { log "Failed to unmount .snapshots subvolume at $mount_point. Exiting."; exit 1; }
+        fi
+
+        # Check if .snapshots subvolume exists
+        if sudo btrfs subvolume list "$mount_point" | grep -q '\.snapshots'; then
+            # Delete existing .snapshots subvolume
+            sudo btrfs subvolume delete "$mount_point/.snapshots" || { log "Failed to delete existing .snapshots subvolume at $mount_point. Exiting."; exit 1; }
+        fi
+
+        # Create .snapshots subvolume
+        sudo btrfs subvolume create "$mount_point/.snapshots" || { log "Failed to create .snapshots subvolume at $mount_point. Exiting."; exit 1; }
+
+        # Configure Snapper for the current mount point
+        config_name=$(basename "$mount_point")
+        sudo snapper -c "$config_name" create-config "$mount_point" || { log "Failed to create Snapper configuration for $mount_point. Exiting."; exit 1; }
+        sudo snapper -c "$config_name" set-config 'TIMELINE_CREATE=no'
+        sudo snapper -c "$config_name" set-config 'ALLOW_GROUPS=sudo'
+        sudo snapper -c "$config_name" set-config 'SYNC_ACL=yes'
+    done
+
+    # Remount .snapshots subvolumes
+    sudo mount -av || { log "Failed to remount .snapshots subvolumes. Exiting."; exit 1; }
+}
+
+# Disable snapper-boot.timer
+disable_snapper_timer() {
+    disable_service "snapper-boot.timer"
+}
+
+# Install BTRFS enabled Grub
+install_btrfs_grub() {
+    local target_directory
+    target_directory=$(clone_a_repo "https://github.com/Antynea/grub-btrfs.git" "grub-btrfs")
+    if [ -n "$target_directory" ]; then
+        sudo make install
+        rm -rf "$target_directory"
+    else
+        log "Failed to clone repository. Aborting installation."
+        exit 1
+    fi
+}

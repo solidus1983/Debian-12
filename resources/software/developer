@@ -1,0 +1,81 @@
+# Function to install development compiling tools
+install_dev_compiling() {
+    log "Installing development compiling tools..."
+    install_packages device-tree-compiler gawk gcc-multilib flex gettext libncurses5-dev python3-distutils \
+    libncursesw5-dev xsltproc python3 subversion swig libelf-dev java-propose-classpath ccache ecj fastjar file g++ python3-setuptools \
+    openjdk-17-jdk bcc libxml-parser-perl libusb-dev bin86 sharutils make sed bison autoconf automake python3 patch perl-modules* python3-dev bash binutils \
+    gcc util-linux intltool help2man python3 python3-pip python-is-python3 openjdk-17-jdk wireshark nmap mtr traceroute tcptraceroute cutecom putty subversion || { log "Failed to install development compiling tools. Exiting."; exit 1; }
+    log "Development compiling tools installed."
+}
+
+# Function to install Docker
+install_docker() {
+    log "Installing Docker..."
+    add_key "https://download.docker.com/linux/ubuntu/gpg" "/usr/share/keyrings/docker-archive-keyring.gpg" || { log "Failed to add Docker key. Exiting."; exit 1; }
+    add_repository "/etc/apt/sources.list.d/docker.list" "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] http://download.docker.com/linux/debian $(lsb_release -cs) stable" || { log "Failed to add Docker repository. Exiting."; exit 1; }
+    update_packages 
+    install_packages docker-ce docker-ce-cli docker-compose containerd.io || { log "Failed to install Docker. Exiting."; exit 1; }
+    # Add user to docker group
+    sudo groupadd -f docker || { log "Failed to create docker group. Exiting."; exit 1; }
+    sudo usermod -aG docker,adm,dialout "$USER" || { log "Failed to add user to groups. Exiting."; exit 1; }
+    log "Docker installed."
+}
+
+# Function to set up Python
+setup_python() {
+    log "Setting up Python..."
+    sudo python3 -m pip install -U pip setuptools wheel --break-system-packages || { log "Failed to update pip, setuptools, and wheel. Exiting."; exit 1; }
+    log "Python setup completed."
+}
+
+# Function to install Node.js
+install_nodejs() {
+    log "Installing Node.js..."
+    add_key "https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key" "/etc/apt/keyrings/nodesource.gpg" || { log "Failed to add Node.js key. Exiting."; exit 1; }
+    add_repository "nodesource.list" 'deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main'
+    update_packages 
+    sudo apt install -y nodejs || { log "Failed to install Node.js. Exiting."; exit 1; }
+    log "Node.js installed."
+}
+
+
+# Function to install Go
+install_go() {
+    log "Installing Go..."
+    sudo add-apt-repository ppa:longsleep/golang-backports -y
+    update_packages 
+    install_packages golang-go || { log "Failed to install Go. Exiting."; exit 1; }
+    log "Go installed."
+}
+
+# Function to install .NET Core
+install_dotnet() {
+    log "Installing .NET Core..."
+    wget https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+    sudo dpkg -i packages-microsoft-prod.deb
+    sudo rm packages-microsoft-prod.deb
+    update_packages
+    install_packages dotnet-sdk-6.0 || { log "Failed to install .NET Core. Exiting."; exit 1; }
+    log ".NET Core installed."
+}
+
+# Function to install Yarn
+install_yarn() {
+    log "Installing Yarn..."
+    # Add Yarn GPG key
+    add_key "https://dl.yarnpkg.com/debian/pubkey.gpg" "/usr/share/keyrings/yarn-keyring.gpg" || { log "Failed to add Yarn GPG key. Exiting."; exit 1; }
+    # Add Yarn repository
+    add_repository "/etc/apt/sources.list.d/yarn.list" "deb [signed-by=/usr/share/keyrings/yarn-keyring.gpg] https://dl.yarnpkg.com/debian/ stable main" || { log "Failed to add Yarn repository. Exiting."; exit 1; }
+    # Update package lists and install Yarn
+    update_packages 
+    install_packages yarn || { log "Failed to install Yarn. Exiting."; exit 1; }
+    log "Yarn installed."
+}
+
+
+# Function to install Rust
+install_rust() {
+    log "Installing Rust..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y || { log "Failed to install Rust. Exiting."; exit 1; }
+    log "Rust installed."
+}

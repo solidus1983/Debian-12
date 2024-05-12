@@ -1,0 +1,10 @@
+# Function to install Dell Precision 5760 specific packages
+install_dell_precision_5760_packages() {
+    log "Installing Dell Precision 5760 specific packages..."
+    # Additional Dell drivers
+    sudo add-apt-repository ppa:oem-solutions-engineers/oem-projects-meta
+    add_repository "oem-solutions-engineers-ubuntu-oem-projects-meta-jammy.list" 'deb http://dell.archive.canonical.com/ jammy somerville' 'deb http://dell.archive.canonical.com/ jammy somerville-stantler' 'deb https://ppa.launchpadcontent.net/oem-solutions-engineers/oem-projects-meta/ubuntu/ jammy main' 'deb-src https://ppa.launchpadcontent.net/oem-solutions-engineers/oem-projects-meta/ubuntu/ jammy main'
+    update_packages
+    install_packages ubuntu-oem-keyring oem-somerville-stantler-meta firmware-sof-signed inxi alsa-base fprintd libpam-fprintd libfprint-2-2  || { log "Failed to install Dell Precision 5760 specific packages. Exiting."; exit 1; }
+    log "Dell Precision 5760-specific packages installed."
+}

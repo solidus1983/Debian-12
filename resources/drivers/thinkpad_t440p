@@ -1,0 +1,20 @@
+# Function to install ThinkPad T440p specific packages
+install_thinkpad_t440p_packages() {
+    log "Installing ThinkPad T440p-specific packages..."
+    update_packages
+    upgrade_packages
+    
+    # Additional ThinkPad drivers
+    install_packages linux-headers-$(uname -r) lm-sensors thinkfan acpitool tp-smapi-dkms tpb tlp tlp-rdw libglvnd-dev nvidia-tesla-470-driver fprintd libpam-fprintd libfprint-2-2 || { log "Failed to install ThinkPad T440p specific packages. Exiting."; exit 1; }
+    
+    # Configure thinkfan
+    echo "options thinkpad_acpi fan_control=1" | sudo tee /etc/modprobe.d/thinkpad_acpi.conf > /dev/null || { log "Failed to write thinkpad_acpi options. Exiting."; exit 1; }
+    sudo modprobe -rv thinkpad_acpi || { log "Failed to load thinkpad_acpi module. Exiting."; exit 1; }
+    sudo modprobe -v thinkpad_acpi || { log "Failed to load thinkpad_acpi module. Exiting."; exit 1; }
+    
+    # Configure TLP
+    sudo tlp start || { log "Failed to start TLP. Exiting."; exit 1; }
+    
+    # Log  
+    log "ThinkPad T440p-specific packages installed and configured."
+}

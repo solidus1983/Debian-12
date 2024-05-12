@@ -1,0 +1,18 @@
+# Function to install Regolith Desktop and additional packages
+install_regolith() {
+    log "Installing Regolith Desktop and additional packages..."
+    # Add Regolith repository
+    add_key "https://regolith-desktop.org/regolith.key" "/usr/share/keyrings/regolith-archive-keyring.gpg"
+    add_repository "/etc/apt/sources.list.d/regolith.list" 'deb [arch=amd64 signed-by=/usr/share/keyrings/regolith-archive-keyring.gpg] https://regolith-desktop.org/release-3_1-debian-bookworm-amd64  bookworm main'
+    # Install Regolith
+    update_packages 
+    install_packages regolith-desktop regolith-session-flashback regolith-lightdm-config regolith-control-center i3xrocks-focused-window-name i3xrocks-rofication i3xrocks-info i3xrocks-app-launcher i3xrocks-memory i3xrocks-battery || { log "Failed to install Regolith Desktop. Exiting."; exit 1; }
+    log "Regolith Desktop and additional packages installed."
+}
+
+# Function to install Regolith Look package and additional themes
+install_regolith_look() {
+    log "Installing Regolith Look package and additional themes..."
+    install_packages regolith-look-ayu regolith-look-ayu-dark regolith-look-ayu-mirage regolith-look-blackhole regolith-look-gruvbox regolith-look-nord regolith-look-nevil regolith-look-dracula || { log "Failed to install Regolith Look package and additional themes. Exiting."; exit 1; }
+    log "Regolith Look package and additional themes installed."
+}

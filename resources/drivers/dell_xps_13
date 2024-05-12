@@ -1,0 +1,11 @@
+# Function to install Dell XPS 13 specific packages
+install_dell_xps_13_packages() {
+    log "Installing Dell XPS 13 specific packages..."
+    # Additional Dell drivers
+    sudo add-apt-repository ppa:oem-solutions-group/intel-ipu6
+    sudo add-apt-repository ppa:oem-solutions-engineers/oem-projects-meta
+    add_repository "oem-somerville-tentacool-meta.list" 'deb http://dell.archive.canonical.com/ jammy somerville' 'deb http://dell.archive.canonical.com/ jammy somerville-tentacool' 'deb https://ppa.launchpadcontent.net/oem-solutions-engineers/oem-projects-meta/ubuntu/ jammy main' 'deb-src https://ppa.launchpadcontent.net/oem-solutions-engineers/oem-projects-meta/ubuntu/ jammy main'
+    update_packages
+    install_packages ubuntu-oem-keyring oem-somerville-tentacool-meta firmware-sof-signed inxi alsa-base gstreamer1.0-icamera libcamhal-ipu6ep0 tlp tlp-rdw fprintd libpam-fprintd libfprint-2-2  || { log "Failed to install Dell XP 13 specific packages. Exiting."; exit 1; }
+    log "Dell XPS 13 specific packages installed."
+}

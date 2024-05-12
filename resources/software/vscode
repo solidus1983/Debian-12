@@ -1,0 +1,16 @@
+# Function to install VSCode and set up extensions
+install_vscode() {
+    log "Installing VSCode and setting up extensions..."
+    # Add vscode repository
+    add_key "https://packages.microsoft.com/keys/microsoft.asc" "/usr/share/keyrings/packages.microsoft.gpg"
+    add_repository "/etc/apt/sources.list.d/vscode.list" "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main"
+    # Install vscode
+    update_packages 
+    install_packages code || { log "Failed to install VSCode. Exiting."; exit 1; }
+
+    # Install VSCode extensions from file
+    while IFS= read -r extension || [[ -n "$extension" ]]; do
+        code --install-extension "$extension" || { log "Failed to install VSCode extension: $extension"; }
+    done < ./resources/software/vscode-extensions.list
+    log "VSCode and extensions installed."
+}

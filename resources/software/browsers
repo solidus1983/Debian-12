@@ -1,0 +1,38 @@
+# Function to install Microsoft Edge
+install_microsoft_edge() {
+    add_key "https://packages.microsoft.com/keys/microsoft.asc" "/usr/share/keyrings/microsoft-edge.gpg"
+    add_repository "/etc/apt/sources.list.d/microsoft-edge.list" "deb [signed-by=/usr/share/keyrings/microsoft-edge.gpg] https://packages.microsoft.com/repos/edge stable main"
+    update_packages 
+    log "Installing Microsoft Edge..."
+    install_packages microsoft-edge-stable || sudo snap install microsoft-edge-stable || { log "Failed to install Microsoft Edge. Exiting."; exit 1; }
+    log "Microsoft Edge installed."
+}
+
+# Function to install Google Chrome
+install_google_chrome() {
+    log "Installing Google Chrome..."
+    add_key "https://dl.google.com/linux/linux_signing_key.pub" "/usr/share/keyrings/google-chrome.gpg"
+    add_repository "/etc/apt/sources.list.d/google-chrome.list" "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main"
+    update_packages 
+    install_packages google-chrome-stable  || { log "Failed to install Google Chrome. Exiting."; exit 1; }
+    log "Google Chrome installed."
+}
+
+# Function to install Firefox
+install_firefox() {
+    add_key "https://packages.mozilla.org/apt/repo-signing-key.gpg" "/usr/share/keyrings/packages.mozilla.org.gpg"
+    add_repository "/etc/apt/sources.list.d/mozilla-firefox.list" "deb [signed-by=/usr/share/keyrings/packages.mozilla.org.gpg] https://packages.mozilla.org/apt mozilla main"
+    log "Installing Firefox..."
+    install_packages firefox-esr || { log "Failed to install Firefox. Exiting."; exit 1; }
+    log "Firefox installed."
+}
+
+# Function to install Brave
+install_brave() {
+    log "Installing Brave..."
+    add_key "https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg" "/usr/share/keyrings/brave-browser-archive-keyring.gpg"
+    add_repository "/etc/apt/sources.list.d/brave-browser.list" "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg arch=amd64] https://brave-browser-apt-release.s3.brave.com/ stable main"
+    update_packages 
+    install_packages brave-browser || { log "Failed to install Brave. Exiting."; exit 1; }
+    log "Brave installed."
+}

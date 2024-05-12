@@ -1,0 +1,7 @@
+# Function to install base packages
+install_base_packages() {
+    log "Installing base packages..."
+    install_packages gnupg dirmngr apt-transport-https console-setup git ca-certificates curl checkinstall micro inotify-tools \
+    bzip2 htop simplescreenrecorder whois zip fakeroot time wget unzip || { log "Failed to install base packages. Exiting."; exit 1; }
+    log "Base packages installed."
+}

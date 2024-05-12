@@ -1,0 +1,14 @@
+# Function to install Flatpak
+install_flatpak() {
+    log "Installing Flatpak..."
+    install_packages flatpak gnome-software-plugin-flatpak || { log "Failed to install Flatpak. Exiting."; exit 1; }
+    sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || { log "Failed to add Flathub repository. Exiting."; exit 1; }
+    log "Flatpak installed."
+}
+
+# Function to install Snap
+install_snap() {
+    log "Installing Snap..."
+    install_packages snap gnome-software-plugin-snap || { log "Failed to install Snap. Exiting."; exit 1; }
+    log "Snap installed."
+}
