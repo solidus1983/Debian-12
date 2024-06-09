@@ -14,30 +14,45 @@ snapper_setup() {
 
     # Iterate over each defined mount point
     for mount_point in "${snapshot_mount_points[@]}"; do
-        # Unmount .snapshots subvolume if mounted
+        # Check if.snapshots subvolume is mounted
         if mountpoint -q "$mount_point/.snapshots"; then
-            sudo umount "$mount_point/.snapshots" || { log "Failed to unmount .snapshots subvolume at $mount_point. Exiting."; exit 1; }
+            # Unmount.snapshots subvolume
+            sudo umount "$mount_point/.snapshots" || { log "Failed to unmount.snapshots subvolume at $mount_point. Exiting."; exit 1; }
         fi
 
-        # Check if .snapshots subvolume exists
+        # Check if.snapshots subvolume exists
         if sudo btrfs subvolume list "$mount_point" | grep -q '\.snapshots'; then
-            # Delete existing .snapshots subvolume
-            sudo btrfs subvolume delete "$mount_point/.snapshots" || { log "Failed to delete existing .snapshots subvolume at $mount_point. Exiting."; exit 1; }
+            # Delete existing.snapshots subvolume
+            sudo btrfs subvolume delete "$mount_point/.snapshots" || { log "Failed to delete existing.snapshots subvolume at $mount_point. Exiting."; exit 1; }
         fi
 
-        # Create .snapshots subvolume
-        sudo btrfs subvolume create "$mount_point/.snapshots" || { log "Failed to create .snapshots subvolume at $mount_point. Exiting."; exit 1; }
+        # Create.snapshots subvolume
+        sudo btrfs subvolume create "$mount_point/.snapshots" || { log "Failed to create.snapshots subvolume at $mount_point. Exiting."; exit 1; }
 
-        # Configure Snapper for the current mount point
+        # Mount.snapshots subvolume
+        sudo mkdir -p "$mount_point/.snapshots"
+        sudo mount -o subvol=.snapshots "$mount_point" "$mount_point/.snapshots" || { log "Failed to mount.snapshots subvolume at $mount_point. Exiting."; exit 1; }
+
+        # Create a separate Snapper configuration for each mount point
         config_name=$(basename "$mount_point")
         sudo snapper -c "$config_name" create-config "$mount_point" || { log "Failed to create Snapper configuration for $mount_point. Exiting."; exit 1; }
         sudo snapper -c "$config_name" set-config 'TIMELINE_CREATE=no'
         sudo snapper -c "$config_name" set-config 'ALLOW_GROUPS=sudo'
         sudo snapper -c "$config_name" set-config 'SYNC_ACL=yes'
-    done
 
-    # Remount .snapshots subvolumes
-    sudo mount -av || { log "Failed to remount .snapshots subvolumes. Exiting."; exit 1; }
+        # Set the cleanup algorithm for each mount point
+        if [ "$mount_point" = "/" ]; then
+            sudo snapper -c "$config_name" set-config 'NUMBER_CLEANUP=yes'
+            sudo snapper -c "$config_name" set-config 'NUMBER_MIN_AGE=1800'
+            sudo snapper -c "$config_name" set-config 'NUMBER_LIMIT=10'
+        elif [ "$mount_point" = "/home" ]; then
+            sudo snapper -c "$config_name" set-config 'TIMELINE_CLEANUP=yes'
+            sudo snapper -c "$config_name" set-config 'TIMELINE_LIMIT_DAILY=7'
+            sudo snapper -c "$config_name" set-config 'TIMELINE_LIMIT_WEEKLY=4'
+            sudo snapper -c "$config_name" set-config 'TIMELINE_LIMIT_MONTHLY=3'
+            sudo snapper -c "$config_name" set-config 'TIMELINE_LIMIT_YEARLY=2'
+        fi
+    done
 }
 
 # Disable snapper-boot.timer
